@@ -21,5 +21,8 @@
         "mongoose": "^9.1.1",
         "multer": "^2.0.2",
         "sharp": "^0.34.5"
+    },
+    "scripts": {
+        "start": "bun run src/index.ts"
     }
 }
