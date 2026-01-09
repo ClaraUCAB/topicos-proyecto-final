@@ -23,6 +23,7 @@
         "sharp": "^0.34.5"
     },
     "scripts": {
-        "start": "bun run src/index.ts"
+        "start": "bun run src/index.ts",
+        "dev": "bun run --watch src/index.ts"
     }
 }
