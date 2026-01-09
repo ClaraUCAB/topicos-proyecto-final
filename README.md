@@ -1,31 +1,47 @@
-# topicos-proyecto-final
+# Sinclair
+Rest API de manipulación de imágenes (Image Manipulation as a Service) con autenticación de usuarios a través de JWTs.  
+Esta API es para el proyecto final de la materia de Tópicos Especiales de Programación.
 
-To install dependencies:
+## Requerimientos
+* Bun: [Guía de instalación](https://bun.com/docs/installation)
 
+## Setup
+1. Clona el repositorio
+```bash
+git clone https://github.com/ClaraUCAB/Sinclair
+cd Sinclair
+```
+2. Instala las dependencias
 ```bash
 bun install
 ```
 
-To run:
-
+## Ejecución
+Para ejecutar la API con normalidad, corre:
 ```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.2.5. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
-
-
-## arrancar puerto 
-```bash
- bun run src/index.ts
+ bun run start
  ```
- 
-   ## endpoints  (curl) 
+<details>
+ <summary>Para development</summary>
+
+ Al ejecutar el script de development, la API se reiniciará automáticamente cuando algún archivo cambie para poder probar los cambios inmediatamente en tiempo real.
+ ```bash
+bun run dev
+```
+</details>
+
+ ## Uso
+| Método | URL                | Description                                     |
+| ------ | ------------------ | ----------------------------------------------- |
+| `POST` | `/images/rotate`   | Rota la imagen.                                 |
+| `POST` | `/images/resize`   | Redimensiona la imagen.                         |
+| `POST` | `/images/crop  `   | Recorta la imagen.                              |
+| `POST` | `/images/filter`   | Aplica un filtro a la imagen.                   |
+| `POST` | `/images/format`   | Cambia el formato de la imagen.                 |
+| `POST` | `/images/pipeline` | Encadena múltiples operaciones simultáneamente. |
   
-  ejemplo de uso de endpoints
-   
-## rotar 
-  
+## Ejemplos
+### Rotar
 ```bash
 curl -X POST http://localhost:3000/images/rotate \
   -H "Content-Type: multipart/form-data" \
@@ -33,8 +49,8 @@ curl -X POST http://localhost:3000/images/rotate \
   -F "angle=111"\
   --output rotated.webp
 ```
-##  redimencionar  
 
+###  Redimensionar  
 ```bash
  curl -X POST http://localhost:3000/images/resize \
   -H "Content-Type: multipart/form-data" \
@@ -44,7 +60,7 @@ curl -X POST http://localhost:3000/images/rotate \
   --output resized.png
 ```
 
-## recortar 
+### Recortar 
 ```bash
 curl -X POST http://localhost:3000/images/crop \
   -H "Content-Type: multipart/form-data" \
@@ -53,8 +69,7 @@ curl -X POST http://localhost:3000/images/crop \
   --output cropped_final.png
 ```
 
-## filtro 
-
+### Aplicar filtro 
 ```bash
 curl -X POST http://localhost:3000/images/filter \
   -H "Content-Type: multipart/form-data" \
@@ -63,7 +78,7 @@ curl -X POST http://localhost:3000/images/filter \
   --output filtered.png
 ```
 
-## convertir formato 
+### Convertir formato 
 ```bash
 curl -X POST http://localhost:3000/images/format \
   -H "Content-Type: multipart/form-data" \
@@ -72,7 +87,7 @@ curl -X POST http://localhost:3000/images/format \
   --output converted.jpeg
 ```
 
- ## pipeline 
+ ### Pipeline 
 ```bash
 curl -X POST http://localhost:3000/images/pipeline \
   -H "Content-Type: multipart/form-data" \
