@@ -12,5 +12,5 @@ export interface User {
 	createdAt: Date;
 }
 
-type ImageApiResponse = ApiResponse<Buffer>;
-type AuthApiResponse = ApiResponse<{ token: string }>;
+export type ImageApiResponse = ApiResponse<Buffer>;
+export type AuthApiResponse = ApiResponse<{ token: string }>;
