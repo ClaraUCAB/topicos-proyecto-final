@@ -5,6 +5,9 @@ import { FormatOperation } from './operations/FormatOperation';
 import { RotateOperation } from './operations/RotateOperation';
 import { FilterOperation } from './operations/FilterOperation';
 
+import { AuthDecorator } from '../decorators/AuthDecorator.ts';
+import { AuthService } from './AuthService.ts';
+
 export class OperationFactory {
 	private operations: Map<string, IImageOperation> = new Map();
 
@@ -16,8 +19,8 @@ export class OperationFactory {
 		this.operations.set('filter', new FilterOperation());
 	}
 
-	getOperation(type: string): IImageOperation {
-		const op = this.operations.get(type);
+	getOperation(operation: string): IImageOperation {
+		const op = this.operations.get(operation);
 		if (!op) throw new Error(`Unknown operation: ${type}`);
 		return op;
 	}

@@ -4,6 +4,10 @@ import { User } from '../models/User.ts';
 import * as jwt from 'jsonwebtoken';
 import { Secret, JwtPayload } from 'jsonwebtoken';
 
+
+const JWT_SECRET: Secret = process.env.JWT_SECRET;
+
+
 interface UserPayload {
 	id: string;
 	email: string;
@@ -92,7 +96,6 @@ export class AuthService {
 	private generateJWT(user: User): string {
 		// JWT Parameters
 		const EXPIRES_IN: string = '2h';
-		const JWT_SECRET: Secret = process.env.JWT_SECRET;
 
 		const payload: UserPayload = {
 			id: user.id,
@@ -106,6 +109,24 @@ export class AuthService {
 
 		return token;
 	}
+
+	verifyJWT(token: string): boolean {
+	    try {
+            const decoded = jwt.verify(token, JWT_SECRET) as UserPayload;
+            const user = this.getUserFromEmail(decoded.email);
+
+            console.log(`[DEBUG] user: ${user}`);
+
+            if (!user) return false;
+            if (decoded.id !== user.id) return false;
+            if (decoded.dateCreated !== user.dateCreated) return false;
+
+	        return true;
+        } catch (err: any) {
+            console.log(`[DEBUG] damn miku: ${err.message}.`);
+            return false;
+        }
+    }
 
 	async register(email: string, password: string): Promise<RegisterStatus> {
 		// TODO: Extract all this behaviour

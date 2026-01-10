@@ -1,176 +1,135 @@
 import { Request, Response } from 'express';
 import sharp from 'sharp';
-import { ImageService } from '../services/ImageService.ts';
-import { ApiResponse } from '../types/index.ts';
 
-export class ImageHandler {
-	constructor(private service: ImageService) {}
+import { ImageService } from '../services/ImageService';
+import { ApiResponse, ImageParams } from '../types/index';
+import { IImageHandler } from './IImageHandler';
+import { OperationFactory } from '../services/OperationFactory';
+import { IImageOperation } from '../services/operations/IImageOperation';
 
-	private async sendImage(res: Response, buffer: Buffer, filename: string) {
-		const metadata = await sharp(buffer).metadata();
-		const format = metadata.format || 'png';
-		res.setHeader('Content-Disposition', `attachment; filename="${filename}.${format}"`);
-		res.type(`image/${format}`).send(buffer);
-	}
+import { AUTH_SERVICE } from '../types/index';
+import { AuthDecorator } from '../decorators/AuthDecorator';
 
-	async resize(req: Request, res: Response) {
-		try {
-			if (!req.file?.buffer) {
-				return res.status(400).json(<ApiResponse<null>>{
-					success: false,
-					error: 'Imagen no proporcionada',
-					timestamp: new Date().toISOString(),
-				});
-			}
 
-			const width = Number(req.body.width);
-			const height = Number(req.body.height);
-			const fit = req.body.fit as keyof import('sharp').FitEnum | undefined;
+export interface ImageParams {
+    angle?: number,
+    width?: number,
+    height?: number,
+    left?: number,
+    top?: number,
+    filter?: ImageFilter | string,
+    format?: string,
+    fit?: any,          // FIX: Chamo...
+    operations?: any[], // FIX: Diablo...
+}
 
-			if (!Number.isFinite(width) || !Number.isFinite(height)) {
-				return res.status(400).json(<ApiResponse<null>>{
-					success: false,
-					error: "Parámetros inválidos: 'width' y 'height' deben ser números.",
-					timestamp: new Date().toISOString(),
-				});
-			}
+export class ImageHandler implements IImageHandler {
+    private operationFactory: OperationFactory;
+    private operation: string = '';
 
-			const buffer = await this.service.resize(req.file.buffer, width, height, fit);
-			await this.sendImage(res, buffer, 'resized');
-		} catch (err: any) {
-			res.status(400).json({ success: false, error: err.message, timestamp: new Date().toISOString() });
-		}
-	}
+    private authDecorator: AuthDecorator;
 
-	async crop(req: Request, res: Response) {
-		try {
-			if (!req.file?.buffer) {
-				return res
-					.status(400)
-					.json({ success: false, error: 'Imagen no proporcionada', timestamp: new Date().toISOString() });
-			}
+    constructor(private service: ImageService) {
+        // FIX: No deberíamos hacer esto.
+        this.operationFactory = new OperationFactory();
+        this.authDecorator = new AuthDecorator(this, AUTH_SERVICE);
+    }
 
-			const left = Number(req.body.left);
-			const top = Number(req.body.top);
-			const width = Number(req.body.width);
-			const height = Number(req.body.height);
+    private async sendImage(res: Response, buffer: Buffer, filename: string) {
+        const metadata = await sharp(buffer).metadata();
+        const format = metadata.format || 'png';
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}.${format}"`);
+        res.type(`image/${format}`).send(buffer);
+    }
 
-			if (![left, top, width, height].every(Number.isFinite)) {
-				return res
-					.status(400)
-					.json({ success: false, error: 'Parámetros inválidos', timestamp: new Date().toISOString() });
-			}
+    private getParams(req: Request): ImageParams | null {
+        try {
+            const angle = Number(req.body.angle);
+            const width = Number(req.body.width);
+            const height = Number(req.body.height);
+            const left = Number(req.body.left);
+            const top = Number(req.body.top);
+            const filter = req.body.filter;
+            const format = req.body.format || 'png';
+            const fit = req.body.fit as keyof import('sharp').FitEnum | undefined;
+            const operations = req.body.operations;
 
-			const buffer = await this.service.crop(req.file.buffer, left, top, width, height);
-			await this.sendImage(res, buffer, 'cropped');
-		} catch (err: any) {
-			res.status(400).json({ success: false, error: err.message, timestamp: new Date().toISOString() });
-		}
-	}
+            const params: ImageParams = {
+                angle: angle,
+                width: width,
+                height: height,
+                left: left,
+                top: top,
+                filter: filter,
+                format: format,
+                fit: fit,
+                operations: operations,
+            };
 
-	async format(req: Request, res: Response) {
-		try {
-			if (!req.file?.buffer) {
-				return res
-					.status(400)
-					.json({ success: false, error: 'Imagen no proporcionada', timestamp: new Date().toISOString() });
-			}
+            return params;
 
-			const format = req.body.format as 'jpeg' | 'png' | 'webp';
-			if (!['jpeg', 'png', 'webp'].includes(format)) {
-				return res
-					.status(400)
-					.json({ success: false, error: 'Formato inválido', timestamp: new Date().toISOString() });
-			}
+        } catch (_: any) {
+            return null;
+        }
+    }
 
-			const buffer = await this.service.format(req.file.buffer, format);
-			res.setHeader('Content-Disposition', `attachment; filename="formatted.${format}"`);
-			res.type(`image/${format}`).send(buffer);
-		} catch (err: any) {
-			res.status(400).json({ success: false, error: err.message, timestamp: new Date().toISOString() });
-		}
-	}
+    async execute(req: Request, res: Response) {
+        const buffer = req.file?.buffer;
+        const params = this.getParams(req);
 
-	async rotate(req: Request, res: Response) {
-		try {
-			if (!req.file?.buffer) {
-				return res
-					.status(400)
-					.json({ success: false, error: 'Imagen no proporcionada', timestamp: new Date().toISOString() });
-			}
+        if (!buffer) {
+            res.status(400).json({
+                success: false,
+                error: 'Imagen no proporcionada',
+                timestamp: new Date().toISOString(),
+            });
+        }
 
-			const angle = Number(req.body.angle);
-			if (!Number.isFinite(angle)) {
-				return res.status(400).json({
-					success: false,
-					error: "Parámetro inválido: 'angle'",
-					timestamp: new Date().toISOString(),
-				});
-			}
+        try {
+            const operation: IImageOperation = this.operationFactory.getOperation(this.operation);
+            const result = await operation.execute(buffer, params);
 
-			const buffer = await this.service.rotate(req.file.buffer, angle);
-			await this.sendImage(res, buffer, 'rotated');
-		} catch (err: any) {
-			res.status(400).json({ success: false, error: err.message, timestamp: new Date().toISOString() });
-		}
-	}
+            this.sendImage(res, result, 'result');
+        }
 
-	async filter(req: Request, res: Response) {
-		try {
-			if (!req.file?.buffer) {
-				return res
-					.status(400)
-					.json({ success: false, error: 'Imagen no proporcionada', timestamp: new Date().toISOString() });
-			}
+        catch (err: any) {
+            const response = {
+                success: false,
+                error: err.message,
+                timestamp: new Date().toISOString(),
+            };
 
-			const filter = req.body.filter as 'blur' | 'sharpen' | 'grayscale';
-			if (!['blur', 'sharpen', 'grayscale'].includes(filter)) {
-				return res
-					.status(400)
-					.json({ success: false, error: 'Filtro inválido', timestamp: new Date().toISOString() });
-			}
+            res.status(400).json(response);
+        }
+    }
 
-			const buffer = await this.service.filter(req.file.buffer, filter);
-			await this.sendImage(res, buffer, 'filtered');
-		} catch (err: any) {
-			res.status(400).json({ success: false, error: err.message, timestamp: new Date().toISOString() });
-		}
-	}
+    async resize(req: Request, res: Response) {
+        this.operation = 'resize';
+        this.authDecorator.execute(req, res);
+    }
 
-	async pipeline(req: Request, res: Response) {
-		try {
-			if (!req.file?.buffer) {
-				return res
-					.status(400)
-					.json({ success: false, error: 'Imagen no proporcionada', timestamp: new Date().toISOString() });
-			}
+    async crop(req: Request, res: Response) {
+        this.operation = 'crop';
+        this.authDecorator.execute(req, res);
+    }
 
-			let operations = req.body.operations;
-			if (typeof operations === 'string') {
-				try {
-					operations = JSON.parse(operations);
-				} catch {
-					return res.status(400).json({
-						success: false,
-						error: "El campo 'operations' debe ser JSON válido",
-						timestamp: new Date().toISOString(),
-					});
-				}
-			}
+    async format(req: Request, res: Response) {
+        this.operation = 'format';
+        this.authDecorator.execute(req, res);
+    }
 
-			if (!Array.isArray(operations)) {
-				return res.status(400).json({
-					success: false,
-					error: "El body debe incluir un array 'operations'",
-					timestamp: new Date().toISOString(),
-				});
-			}
+    async rotate(req: Request, res: Response) {
+        this.operation = 'rotate';
+        this.authDecorator.execute(req, res);
+    }
 
-			const { buffer, format } = await this.service.pipeline(req.file.buffer, operations);
-			res.setHeader('Content-Disposition', `attachment; filename="pipeline.${format}"`);
-			res.type(`image/${format}`).send(buffer);
-		} catch (err: any) {
-			res.status(400).json({ success: false, error: err.message, timestamp: new Date().toISOString() });
-		}
-	}
+    async filter(req: Request, res: Response) {
+        this.operation = 'filter';
+        this.authDecorator.execute(req, res);
+    }
+
+    async pipeline(req: Request, res: Response) {
+        this.operation = 'pipeline';
+        this.authDecorator.execute(req, res);
+    }
 }
