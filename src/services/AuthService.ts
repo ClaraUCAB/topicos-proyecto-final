@@ -4,9 +4,7 @@ import { User } from '../models/User.ts';
 import * as jwt from 'jsonwebtoken';
 import { Secret, JwtPayload } from 'jsonwebtoken';
 
-
 const JWT_SECRET: Secret = process.env.JWT_SECRET;
-
 
 interface UserPayload {
 	id: string;
@@ -111,22 +109,22 @@ export class AuthService {
 	}
 
 	verifyJWT(token: string): boolean {
-	    try {
-            const decoded = jwt.verify(token, JWT_SECRET) as UserPayload;
-            const user = this.getUserFromEmail(decoded.email);
+		try {
+			const decoded = jwt.verify(token, JWT_SECRET) as UserPayload;
+			const user = this.getUserFromEmail(decoded.email);
 
-            console.log(`[DEBUG] user: ${user}`);
+			console.log(`[DEBUG] user: ${user}`);
 
-            if (!user) return false;
-            if (decoded.id !== user.id) return false;
-            if (decoded.dateCreated !== user.dateCreated) return false;
+			if (!user) return false;
+			if (decoded.id !== user.id) return false;
+			if (decoded.dateCreated !== user.dateCreated) return false;
 
-	        return true;
-        } catch (err: any) {
-            console.log(`[DEBUG] damn miku: ${err.message}.`);
-            return false;
-        }
-    }
+			return true;
+		} catch (err: any) {
+			console.log(`[DEBUG] damn miku: ${err.message}.`);
+			return false;
+		}
+	}
 
 	async register(email: string, password: string): Promise<RegisterStatus> {
 		// TODO: Extract all this behaviour
