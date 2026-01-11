@@ -3,7 +3,7 @@ import mongoose, { Schema } from 'mongoose';
 export interface User {
 	id: string;
 	email: string;
-	password: string;   // OJO: aquí va el hash bcrypt
+	password: string;
 	createdAt: Date;
 }
 
@@ -19,15 +19,14 @@ const userSchema = new Schema(
 		},
 		password: {
 			type: String,
-			required: true, // bcrypt hash
+			required: true,
 		},
 	},
 	{
-		timestamps: { createdAt: true, updatedAt: false }, // crea createdAt como Date
+		timestamps: { createdAt: true, updatedAt: false },
 	}
 );
 
-// Transform: _id -> id (string) y quita campos internos
 userSchema.set('toJSON', {
 	virtuals: true,
 	versionKey: false,
