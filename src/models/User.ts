@@ -24,7 +24,7 @@ const userSchema = new Schema(
 	},
 	{
 		timestamps: { createdAt: true, updatedAt: false },
-	}
+	},
 );
 
 userSchema.set('toJSON', {
@@ -45,5 +45,4 @@ userSchema.set('toObject', {
 	},
 });
 
-export const UserModel =
-	mongoose.models.User ?? mongoose.model('User', userSchema);
+export const UserModel = mongoose.models.User ?? mongoose.model('User', userSchema);
