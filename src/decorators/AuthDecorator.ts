@@ -10,19 +10,22 @@ export class AuthDecorator implements IImageHandler {
 	) {}
 
 	async execute(req: Request, res: Response) {
-		const token = req.get('Authorization');
+		let token = req.get('Authorization');
 
-		console.log(`[DEBUG] ${token}.`);
+		const errorResponse: ApiResponse = {
+			success: false,
+			error: 'Usuario no autorizado',
+			timestamp: new Date().toISOString(),
+		};
+
+		if (!token || !token.startsWith('Bearer')) {
+			res.status(StatusCode.InvalidJWT).json(errorResponse);
+		}
+
+		token = token.replace('Bearer ', '');
 
 		if (!(await this.authService.verifyJWT(token))) {
-			console.log('me cagué');
-			const response: ApiResponse = {
-				success: false,
-				error: 'Usuario no autorizado',
-				timestamp: new Date().toISOString(),
-			};
-
-			res.status(StatusCode.InvalidJWT).json(response);
+			res.status(StatusCode.InvalidJWT).json(errorResponse);
 		}
 
 		this.inner.execute(req, res);
