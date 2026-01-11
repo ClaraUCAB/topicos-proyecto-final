@@ -1,6 +1,6 @@
 # Sinclair
-Rest API de manipulación de imágenes (Image Manipulation as a Service) con autenticación de usuarios a través de JWTs.
-Esta API es para el proyecto final de la materia de Tópicos Especiales de Programación.
+Rest API de manipulación de imágenes (Image Manipulation as a Service) con autenticación de usuarios a través de JWTs.  
+Esta API es para el proyecto final de la materia de Tópicos Especiales de Programación.  
 
 ## Requerimientos
 * Bun: [Guía de instalación](https://bun.com/docs/installation)
@@ -25,15 +25,15 @@ bun run start
     <summary>Para development</summary>
 
  Al ejecutar el script de development, la API se reiniciará automáticamente cuando algún archivo cambie para poder probar los cambios inmediatamente en tiempo real.
-    ```bash
+```bash
 bun run dev
-    ```
+```
 </details>
 
 
 ## Uso
 ### Autenticación
-Al realizar operaciones es necesario una JWT agregada como header `Authorization: Bearer <token>` en todas las peticiones.
+Al realizar operaciones es necesario una JWT agregada como header `Authorization: Bearer <token>` en todas las peticiones.  
 Para esto primero es necesario autenticarse. Esto se logra con los siguientes endpoints:
 
 | Método | URL                | Description                                     |
