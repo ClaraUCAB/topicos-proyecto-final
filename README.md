@@ -153,7 +153,7 @@ curl -X POST http://localhost:3000/images/rotate \
     -H "Content-Type: multipart/form-data" \
     -F "image=@images/narga.png" \
     -F "angle=111"\
-    --output rotated.webp
+    --output rotated.png
 ```
 
 ###  Redimensionar
@@ -161,7 +161,7 @@ curl -X POST http://localhost:3000/images/rotate \
 curl -X POST http://localhost:3000/images/resize \
     -H "Authorization: Bearer SnVlZ2EgVGVhbSBGb3J0cmVzcyAyCg==" \
     -H "Content-Type: multipart/form-data" \
-    -F "image=@images/narga.png"\
+    -F "image=@images/niko.png"\
     -F "width=30" \
     -F "height=20" \
     --output resized.png
@@ -174,7 +174,7 @@ curl -X POST http://localhost:3000/images/crop \
     -H "Content-Type: multipart/form-data" \
     -F "image=@images/narga.png" \
     -F "left=10" -F "top=10" -F "width=50" -F "height=50" \
-    --output cropped_final.png
+    --output cropped.png
 ```
 
 ### Aplicar filtro
@@ -182,7 +182,7 @@ curl -X POST http://localhost:3000/images/crop \
 curl -X POST http://localhost:3000/images/filter \
     -H "Authorization: Bearer SnVlZ2EgVGVhbSBGb3J0cmVzcyAyCg==" \
     -H "Content-Type: multipart/form-data" \
-    -F "image=@images/narga.png" \
+    -F "image=@images/niko.png" \
     -F "filter=grayscale" \
     --output filtered.png
 ```
@@ -202,7 +202,7 @@ curl -X POST http://localhost:3000/images/format \
 curl -X POST http://localhost:3000/images/pipeline \
     -H "Authorization: Bearer SnVlZ2EgVGVhbSBGb3J0cmVzcyAyCg==" \
     -H "Content-Type: multipart/form-data" \
-    -F "image=@images/narga.png" \
+    -F "image=@images/niko.png" \
     -F 'operations=[{"type":"resize","params":{"width":800}},{"type":"format","params":{"format":"webp"}}]' \
     --output pipeline_test.webp
 ```
