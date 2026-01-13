@@ -8,7 +8,7 @@ export class FileLogger implements ILogger {
 		try {
 			await fs.appendFile(this.FILE_PATH, JSON.stringify(entry) + '\n', 'utf8');
 		} catch (error) {
-			throw new error();
+			throw error;
 		}
 	}
 }

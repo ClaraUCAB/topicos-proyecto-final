@@ -1,24 +1,24 @@
 export enum LogLevel {
-	Debug,
-	Info,
-	Warn,
-	Error,
-	Critical,
+	Debug = 'debug',
+	Info = 'info',
+	Warn = 'warn',
+	Error = 'error',
+	Critical = 'critical',
 }
 
 export enum OperationResult {
-	Success,
-	Failure,
+	Success = 'success',
+	Failure = 'error',
 }
 
 export interface LogEntry {
-	timestamp: Date; // FIX: Maybe Time?
-	level: LogLevel;
+	timestamp: Date;
+	level: LogLevel | null;
 	userEmail: string;
 	endpoint: string;
-	parameters: Record<string, string>; // FIX: Probably use a generic here. Record<string, T>?
-	executionTime: number;
-	result: OperationResult;
+	parameters: Record<string, string>;
+	executionTime: number | null;
+	result: OperationResult | null;
 	message?: string;
 }
 

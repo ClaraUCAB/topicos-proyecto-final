@@ -1,5 +1,5 @@
 import type { IImageHandler } from '../handlers/IImageHandler';
-import { ILogger, OperationResult, LogLevel } from '../logging/ILogger';
+import { ILogger, OperationResult, LogLevel, LogEntry } from '../logging/ILogger';
 import type { IImageOperation } from '../services/operations/IImageOperation';
 import type { Request, Response } from 'express';
 import { AuthService } from '../services/AuthService';
@@ -14,39 +14,37 @@ export class LoggingDecorator implements IImageHandler {
 		let start = new Date();
 		let inicio = performance.now();
 
-		const jwt = req.get('Authorization').replace('Bearer ', '');
-		const correo = await AuthService.getEmailFromJWT(jwt);
+		const jwt = (req.get('Authorization') || '').replace('Bearer ', '');
+		const correo = (await AuthService.getEmailFromJWT(jwt)) || 'correo';
+
+		const logEntry: LogEntry = {
+			timestamp: start,
+			level: null, // TBD
+			userEmail: correo,
+			endpoint: req.originalUrl,
+			parameters: req.body,
+			executionTime: null, // TBD
+			result: null, // TBD
+		};
 
 		try {
 			const result = await this.inner.execute(req, res);
-
 			const final = performance.now();
 
-			await this.logger.log({
-				timestamp: start,
-				level: LogLevel.Info,
-				userEmail: correo,
-				endpoint: req.originalUrl,
-				parameters: req.body,
-				executionTime: parseFloat((final - inicio).toFixed(2)),
-				result: OperationResult.Success,
-			});
+			logEntry.level = LogLevel.Info;
+			logEntry.executionTime = final - inicio;
+			logEntry.result = OperationResult.Success;
 
+			await this.logger.log(logEntry);
 			return result;
 		} catch (error) {
 			let final = performance.now();
 
-			await this.logger.log({
-				timestamp: start,
-				level: LogLevel.Error,
-				userEmail: correo,
-				endpoint: req.originalUrl,
-				parameters: req.body,
-				executionTime: final - inicio,
-				result: OperationResult.Failure,
-				message: error.message,
-			});
+			logEntry.level = LogLevel.Error;
+			logEntry.executionTime = final - inicio;
+			logEntry.result = OperationResult.Failure;
 
+			await this.logger.log(logEntry);
 			throw error;
 		}
 	}
