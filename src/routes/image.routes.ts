@@ -5,7 +5,6 @@ import { ImageService } from '../services/ImageService.ts';
 import { LoggingDecorator } from '../decorators/LoggingDecorator.ts';
 import { FileLogger } from '../logging/FileLogger.ts';
 import { AuthDecorator } from '../decorators/AuthDecorator.ts';
-import { AuthService } from '../services/AuthService.ts';
 import { authService } from './auth.routes.ts';
 
 const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } });

@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
-import { Secret } from 'jsonwebtoken';
+import type { Secret } from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
 import { UserModel } from '../models/User.ts';
