@@ -13,12 +13,13 @@ export enum OperationResult {
 
 export interface LogEntry {
 	timestamp: Date; // FIX: Maybe Time?
+	level: LogLevel,
 	userEmail: string;
 	endpoint: string;
 	parameters: Record<string, string>; // FIX: Probably use a generic here. Record<string, T>?
-	executionTime: Time;
+	executionTime: number;
 	result: OperationResult;
-	error?: string;
+	message?: string;
 }
 
 export interface ILogger {

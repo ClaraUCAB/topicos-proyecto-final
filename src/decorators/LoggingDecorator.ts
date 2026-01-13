@@ -1,26 +1,43 @@
-import { ILogger } from '../logging/ILogger.ts';
+import type { IImageHandler } from '../handlers/IImageHandler.ts';
+import { ILogger, OperationResult, LogLevel } from '../logging/ILogger.ts';
 import { IImageOperation } from '../services/operations/IImageOperation.ts';
+import { Request, Response } from 'express';
 
-export class AuthDecorator implements IImageHandler {
+export class LoggingDecorator implements IImageHandler {
     constructor(
         private inner: IImageHandler,
-        private logger: Ilogger,
+        private logger: ILogger,
     ) {}
 
     async execute(req: Request, res: Response) {
-        const start = Date.now();
-
+        let start = new Date();
+        let inicio = performance.now();
         try {
             const result = await this.inner.execute(buffer, params);
+            let final = performance.now()
             await this.logger.log({
-                /* éxito */
+                timestamp: start,
+                level: LogLevel.Info,
+                userEmail: "correo", //para esto tengo que decodificar el jwt, lo hago despues
+                endpoint: req.originalUrl,
+                parameters: req.body,
+                executionTime: final-inicio,
+                result: OperationResult.Success
             });
             return result;
         } catch (error) {
+            let final = performance.now()
             await this.logger.log({
-                /* error */
-            });
+                timestamp: start,
+                level: LogLevel.Error,
+                userEmail: "correo", //para esto tengo que decodificar el jwt, lo hago despues
+                endpoint: req.originalUrl,
+                parameters: req.body,
+                executionTime: final-inicio,
+                result: OperationResult.Failure,
+                message: error.message
+            })
             throw error;
-        }
+        } 
     }
 }
