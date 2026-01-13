@@ -27,6 +27,7 @@ export class AuthDecorator implements IImageHandler {
 
 		if (!(await this.authService.verifyJWT(token))) {
 			res.status(StatusCode.InvalidJWT).json(errorResponse);
+			return;
 		}
 
 		this.inner.execute(req, res);
