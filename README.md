@@ -119,6 +119,19 @@ Para esto primero es necesario autenticarse. Esto se logra con los siguientes en
 ```
 </details>
 
+<details>
+    <summary>Parámetros para los endpoints de <code>/images/pipeline</code></summary>
+
+El endpoint de `pipeline` tiene un único parámetro `operations`, el cual debe ser suministrado como un string en forma de JSON.  
+Este debe contener una lista de operaciones. Las operaciones pueden repetirse para aplicarse varias veces y se ejecutarán en orden.  
+```ts
+{
+    operations: ('rotate' | 'resize' | 'crop' | 'filter' | 'format')[],
+}
+```
+Refiérase al [ejemplo de pipeline](#pipeline-example) en la sección de [ejemplos](#examples).
+</details>
+
 
 ## Códigos de Estado HTTP
 | Código | Situación                        |
@@ -131,79 +144,86 @@ Para esto primero es necesario autenticarse. Esto se logra con los siguientes en
 | 500    | Error interno del servidor       |
 
 
-## Ejemplos
+<h2 id="examples">Ejemplos</h2>
+
 ### Registrar usuario
 ```bash
 curl -X POST http://localhost:3000/auth/register \
-    -H "Content-Type: application/json" \
-    -d '{"email": "clarilu@email.com", "password": "waos123"}'
+    -H 'Content-Type: application/json' \
+    -d '{"email": "user@email.com", "password": "waos123"}'
 ```
 
 ### Iniciar sesión
 ```bash
 curl -X POST http://localhost:3000/auth/login \
-    -H "Content-Type: application/json" \
-    -d '{"email": "clarilu@email.com", "password": "waos123"}'
+    -H 'Content-Type: application/json' \
+    -d '{"email": "user@email.com", "password": "waos123"}'
 ```
 
 ### Rotar
 ```bash
 curl -X POST http://localhost:3000/images/rotate \
-    -H "Authorization: Bearer SnVlZ2EgVGVhbSBGb3J0cmVzcyAyCg==" \
-    -H "Content-Type: multipart/form-data" \
-    -F "image=@images/narga.png" \
-    -F "angle=111"\
+    -H 'Authorization: Bearer <token>' \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'image=@images/narga.png' \
+    -F 'angle=111' \
     --output rotated.png
 ```
 
 ###  Redimensionar
 ```bash
 curl -X POST http://localhost:3000/images/resize \
-    -H "Authorization: Bearer SnVlZ2EgVGVhbSBGb3J0cmVzcyAyCg==" \
-    -H "Content-Type: multipart/form-data" \
-    -F "image=@images/niko.png"\
-    -F "width=30" \
-    -F "height=20" \
+    -H 'Authorization: Bearer <token>' \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'image=@images/narga.png' \
+    -F 'width=30' \
+    -F 'height=20' \
     --output resized.png
 ```
 
 ### Recortar
 ```bash
 curl -X POST http://localhost:3000/images/crop \
-    -H "Authorization: Bearer SnVlZ2EgVGVhbSBGb3J0cmVzcyAyCg==" \
-    -H "Content-Type: multipart/form-data" \
-    -F "image=@images/narga.png" \
-    -F "left=10" -F "top=10" -F "width=50" -F "height=50" \
+    -H 'Authorization: Bearer <token>' \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'image=@images/niko.png' \
+    -F 'left=264' -F 'top=300' -F 'width=550' -F 'height=600' \
     --output cropped.png
 ```
 
 ### Aplicar filtro
 ```bash
 curl -X POST http://localhost:3000/images/filter \
-    -H "Authorization: Bearer SnVlZ2EgVGVhbSBGb3J0cmVzcyAyCg==" \
-    -H "Content-Type: multipart/form-data" \
-    -F "image=@images/niko.png" \
-    -F "filter=grayscale" \
+    -H 'Authorization: Bearer <token>' \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'image=@images/niko.png' \
+    -F 'filter=grayscale' \
     --output filtered.png
 ```
 
 ### Convertir formato
 ```bash
 curl -X POST http://localhost:3000/images/format \
-    -H "Authorization: Bearer SnVlZ2EgVGVhbSBGb3J0cmVzcyAyCg==" \
-    -H "Content-Type: multipart/form-data" \
-    -F "image=@images/narga.png" \
-    -F "format=jpeg" \
+    -H 'Authorization: Bearer <token>' \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'image=@images/niko.png' \
+    -F 'format=jpeg' \
     --output converted.jpeg
 ```
 
-### Pipeline
+<h3 id="pipeline-example">Pipeline</h3>
+
 ```bash
 curl -X POST http://localhost:3000/images/pipeline \
-    -H "Authorization: Bearer SnVlZ2EgVGVhbSBGb3J0cmVzcyAyCg==" \
-    -H "Content-Type: multipart/form-data" \
-    -F "image=@images/niko.png" \
-    -F 'operations=[{"type":"resize","params":{"width":800}},{"type":"format","params":{"format":"webp"}}]' \
-    --output pipeline_test.webp
+    -H 'Authorization: Bearer <token>' \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'image=@images/narga.png' \
+    -F 'operations=["rotate", "crop", "rotate", "format", "rotate"]' \
+    -F 'angle=100' \
+    -F 'left=264' \
+    -F 'top=300' \
+    -F 'width=550' \
+    -F 'height=600' \
+    -F 'format=tiff' \
+    --output pipeline_result.tiff
 ```
-
