@@ -15,6 +15,7 @@ cd Sinclair
 ```bash
 bun install
 ```
+3. Configura las variables de entorno en .env. Utiliza .env.example como referencia.
 
 ## Ejecución
 Para ejecutar la API con normalidad, corre:
