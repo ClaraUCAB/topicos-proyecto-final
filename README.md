@@ -15,7 +15,14 @@ cd Sinclair
 ```bash
 bun install
 ```
-3. Configura las variables de entorno en .env. Utiliza .env.example como referencia.
+3. Configura las variables de entorno en `.env`. Utiliza `.env.example` como referencia.
+
+## Variables de Entorno
+| Variable      | Default | Requerido | Descripción                            |
+| ------------- | ------- | --------- | ---------------------------------------|
+| `PORT`        | 3000    | Sí        | Puerto donde va a iniciar el servidor. |
+| `JWT_SECRET`  |         | Sí        | Secreto usado para generar las JWT.    |     
+| `MONGODB_URI` |         | Sí        | URI de la base de datos de MongoDB.    |                     
 
 ## Ejecución
 Para ejecutar la API con normalidad, corre:
@@ -37,13 +44,13 @@ bun run dev
 Al realizar operaciones es necesario una JWT agregada como header `Authorization: Bearer <token>` en todas las peticiones.
 Para esto primero es necesario autenticarse. Esto se logra con los siguientes endpoints:
 
-| Método | URL                | Description                                     |
+| Método | URL                | Descripción                                     |
 | ------ | ------------------ | ----------------------------------------------- |
 | `POST` | `/auth/register`   | Registra al usuario en la DB.                   |
 | `POST` | `/auth/login`      | Autentica al usuario. Devuelve una JWT.         |
 
 ### Transformación de imágenes
-| Método | URL                | Description                                     |
+| Método | URL                | Descripción                                     |
 | ------ | ------------------ | ----------------------------------------------- |
 | `POST` | `/images/rotate`   | Rota la imagen.                                 |
 | `POST` | `/images/resize`   | Redimensiona la imagen.                         |
