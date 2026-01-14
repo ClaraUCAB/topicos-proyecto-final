@@ -86,17 +86,10 @@ export class ImageHandler implements IImageHandler {
 	}
 
 	async execute(req: Request, res: Response) {
-		const buffer = req.file?.buffer;
-		if (!buffer) {
-			res.status(400).json({
-				success: false,
-				error: 'Imagen no proporcionada',
-				timestamp: new Date().toISOString(),
-			});
-			return;
-		}
-
 		try {
+			const buffer = req.file?.buffer;
+			if (!buffer) throw new HTTPError('Imagen no proporcionada.', 400);
+
 			const metadata = await sharp(buffer).metadata();
 
 			const format = metadata.format || 'png';
@@ -123,6 +116,7 @@ export class ImageHandler implements IImageHandler {
 			};
 
 			res.status(err.statusCode || 500).json(response);
+			throw err;
 		}
 	}
 }

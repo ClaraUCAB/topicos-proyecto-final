@@ -15,7 +15,7 @@ export class LoggingDecorator implements IImageHandler {
 		let inicio = performance.now();
 
 		const jwt = (req.get('Authorization') || '').replace('Bearer ', '');
-		const correo = (await AuthService.getEmailFromJWT(jwt)) || 'correo';
+		const correo = (await AuthService.getEmailFromJWT(jwt)) || 'n/a';
 
 		const logEntry: LogEntry = {
 			timestamp: start,
@@ -37,15 +37,15 @@ export class LoggingDecorator implements IImageHandler {
 
 			await this.logger.log(logEntry);
 			return result;
-		} catch (error) {
+		} catch (error: any) {
 			let final = performance.now();
 
 			logEntry.level = LogLevel.Error;
 			logEntry.executionTime = final - inicio;
 			logEntry.result = OperationResult.Failure;
+			logEntry.message = error.message;
 
 			await this.logger.log(logEntry);
-			throw error;
 		}
 	}
 
